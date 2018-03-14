@@ -16,12 +16,12 @@ cat "$source/web/l10n.js" "$source/build/pdf.js" "$source/web/debugger.js" "$sou
 
 cp "$source/build/pdf.worker.js" .
 
-cat "$source/web/viewer.html" | tr '\n' '\f' | sed -r 's/^.+<body [^>]*>/<pdfjs-wrapper>/' | sed -r 's/<\/body>.+$/<\/pdfjs-wrapper>/' | tr '\f' '\n' > ./viewer.html
+cat "$source/web/viewer.html" | tr '\n' '\f' | sed -E 's/^.+<body [^>]*>/<pdfjs-wrapper>/' | sed -E 's/<\/body>.+$/<\/pdfjs-wrapper>/' | tr '\f' '\n' > ./viewer.html
 
 node node_modules/uglifycss/uglifycss "$source/web/viewer.css" > viewer.css
 node grunt/css-prefix.js viewer.css viewer.css pdfjs
 cat viewer-overwrites.css >> viewer.css;
 
-sed -r 's/url\((")?images\//url\(\1@pdfjsImagePath\//g' < viewer.css > viewer.less
+sed -E 's/url\((")?images\//url\(\1@pdfjsImagePath\//g' < viewer.css > viewer.less
 
-cp -a "$source/web/cmaps/" "$source/web/images/" "$source/web/locale/" .
+cp -a "$source/web/cmaps" "$source/web/images" "$source/web/locale" .
