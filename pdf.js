@@ -12839,6 +12839,7 @@ var PDFViewerApplication = {
  fellback: false,
  appConfig: null,
  pdfDocument: null,
+ pdfDownloadWindow: null,
  pdfLoadingTask: null,
  printService: null,
  pdfViewer: null,
@@ -13961,6 +13962,9 @@ function webViewerPrint() {
  window.print();
 }
 function webViewerDownload() {
+  if (navigator.platform === 'iPad') {
+    PDFViewerApplication.pdfDownloadWindow = window.open('', '_blank');
+  }
  PDFViewerApplication.download();
 }
 function webViewerFirstPage() {
@@ -15167,23 +15171,27 @@ exports.DefaultAnnotationLayerFactory = DefaultAnnotationLayerFactory;
 
 var pdfjsLib = __webpack_require__(1);
 function download(blobUrl, filename) {
- var a = document.createElement('a');
- if (a.click) {
-  a.href = blobUrl;
-  a.target = '_parent';
-  if ('download' in a) {
-   a.download = filename;
+  if (navigator.platform === 'iPad') {
+    PDFViewerApplication.pdfDownloadWindow.location = blobUrl;
+  } else {
+    var a = document.createElement('a');
+    if (a.click) {
+      a.href = blobUrl;
+      a.target = '_parent';
+      if ('download' in a) {
+      a.download = filename;
+      }
+      (document.body || document.documentElement).appendChild(a);
+      a.click();
+      a.parentNode.removeChild(a);
+    } else {
+      if (window.top === window && blobUrl.split('#')[0] === window.location.href.split('#')[0]) {
+      var padCharacter = blobUrl.indexOf('?') === -1 ? '?' : '&';
+      blobUrl = blobUrl.replace(/#|$/, padCharacter + '$&');
+      }
+      window.open(blobUrl, '_parent');
+    }
   }
-  (document.body || document.documentElement).appendChild(a);
-  a.click();
-  a.parentNode.removeChild(a);
- } else {
-  if (window.top === window && blobUrl.split('#')[0] === window.location.href.split('#')[0]) {
-   var padCharacter = blobUrl.indexOf('?') === -1 ? '?' : '&';
-   blobUrl = blobUrl.replace(/#|$/, padCharacter + '$&');
-  }
-  window.open(blobUrl, '_parent');
- }
 }
 function DownloadManager() {
 }
